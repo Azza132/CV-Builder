@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraftCV — CV & Cover Letter Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface2: #f0ede6;
+  --border: #e2ddd4;
+  --ink: #1a1814;
+  --ink2: #4a4640;
+  --muted: #9a9088;
+  --accent: #c4622d;
+  --accent-light: #f5ede7;
+  --accent2: #2d5c8a;
+  --accent2-light: #e7eef5;
+  --success: #2d7a4f;
+  --success-light: #e7f5ee;
+  --gold: #b8952a;
+  --gold-light: #faf3e0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); padding: 0 2.5rem; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.logo span { color: var(--accent); }
+.header-nav { display: flex; gap: 0.25rem; }
+.tab-btn {
+  background: none; border: 1px solid transparent; color: rgba(255,255,255,0.5);
+  padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.85); }
+.tab-btn.active { color: #fff; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); }
+
+.app-layout { display: grid; grid-template-columns: 400px 1fr; min-height: calc(100vh - 60px); }
+
+.left-panel {
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; max-height: calc(100vh - 60px); position: sticky; top: 60px;
+}
+.panel-section { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); }
+.panel-section:last-child { border-bottom: none; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.63rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.field-group { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.7rem; }
+.field-group:last-child { margin-bottom: 0; }
+.field-group label { font-size: 0.73rem; font-weight: 500; color: var(--ink2); }
+.field-group input, .field-group textarea, .field-group select {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--ink);
+  padding: 0.5rem 0.75rem; border-radius: 7px; font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  resize: none; width: 100%;
+}
+.field-group input:focus, .field-group textarea:focus, .field-group select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(196,98,45,0.1);
+}
+.field-group input::placeholder, .field-group textarea::placeholder { color: var(--muted); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+.tags-input-area {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
+  padding: 0.35rem; min-height: 42px; display: flex; flex-wrap: wrap;
+  gap: 0.3rem; align-items: center; cursor: text; transition: border-color 0.2s;
+}
+.tags-input-area:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(196,98,45,0.1); }
+.tag { background: var(--accent-light); color: var(--accent); border: 1px solid rgba(196,98,45,0.2); padding: 0.18rem 0.5rem; border-radius: 100px; font-size: 0.73rem; display: flex; align-items: center; gap: 0.3rem; }
+.tag button { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem; line-height: 1; padding: 0; opacity: 0.6; }
+.tag button:hover { opacity: 1; }
+.tags-input { background: none; border: none; outline: none; font-family: 'Outfit', sans-serif; font-size: 0.8rem; color: var(--ink); min-width: 80px; flex: 1; }
+
+.exp-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem; margin-bottom: 0.6rem; }
+.exp-item-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; }
+.exp-item-title { font-size: 0.82rem; font-weight: 600; }
+.exp-item-sub { font-size: 0.75rem; color: var(--muted); }
+.remove-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.95rem; padding: 0; transition: color 0.2s; }
+.remove-btn:hover { color: var(--accent); }
+.iinput {
+  background: var(--surface); border: 1px solid var(--border); color: var(--ink);
+  padding: 0.38rem 0.6rem; border-radius: 5px; font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem; outline: none; width: 100%; margin-bottom: 0.35rem;
+  display: block; resize: none;
+}
+.iinput:focus { border-color: var(--accent); }
+
+.btn { padding: 0.5rem 1rem; border-radius: 7px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.82rem; font-weight: 500; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 0.4rem; }
+.btn-ghost { background: var(--surface2); color: var(--ink2); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--border); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--ink2); }
+.btn-outline:hover { border-color: var(--ink); color: var(--ink); }
+.btn-sm { padding: 0.35rem 0.8rem; font-size: 0.75rem; }
+.btn-full { width: 100%; justify-content: center; }
+
+.right-panel { padding: 2rem 2.5rem; overflow-y: auto; }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+
+.section-heading { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+.section-sub { color: var(--muted); font-size: 0.84rem; margin-bottom: 1.5rem; }
+
+.template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1.25rem; }
+.template-card { border: 2px solid var(--border); border-radius: 8px; padding: 0.75rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+.template-card:hover { border-color: var(--accent); }
+.template-card.selected { border-color: var(--accent); background: var(--accent-light); }
+.template-thumb { font-size: 1.4rem; margin-bottom: 0.25rem; }
+.template-name { font-size: 0.74rem; font-weight: 600; }
+.template-desc { font-size: 0.66rem; color: var(--muted); }
+
+.preview-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 24px rgba(0,0,0,0.06); }
+.preview-toolbar { padding: 0.7rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
+.preview-toolbar-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* CV DOC */
+.cv-doc { padding: 2.5rem; font-family: 'Outfit', sans-serif; color: var(--ink); line-height: 1.5; min-height: 400px; }
+.cv-doc.t-classic .cv-header { border-bottom: 2px solid var(--ink); padding-bottom: 1rem; margin-bottom: 1.25rem; }
+.cv-doc.t-modern .cv-header { background: var(--ink); color: #fff; margin: -2.5rem -2.5rem 1.5rem; padding: 2rem 2.5rem; }
+.cv-doc.t-modern .cv-name, .cv-doc.t-modern .cv-headline { color: #fff !important; }
+.cv-doc.t-modern .cv-contact-item { color: rgba(255,255,255,0.65) !important; }
+.cv-doc.t-executive .cv-header { border-bottom: 3px solid var(--accent); padding-bottom: 1rem; margin-bottom: 1.25rem; }
+.cv-doc.t-executive .cv-name { color: var(--accent); }
+.cv-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+.cv-headline { font-size: 0.95rem; color: var(--muted); margin-bottom: 0.5rem; }
+.cv-contact { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin-top: 0.4rem; }
+.cv-contact-item { font-size: 0.78rem; color: var(--muted); }
+.cv-section { margin-bottom: 1.2rem; }
+.cv-section-title { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 0.75rem; }
+.cv-doc.t-modern .cv-section-title { color: var(--accent2); border-color: var(--accent2); }
+.cv-summary { font-size: 0.88rem; color: var(--ink2); line-height: 1.65; }
+.cv-exp-item { margin-bottom: 0.8rem; }
+.cv-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.cv-exp-title { font-size: 0.9rem; font-weight: 600; }
+.cv-dates { font-size: 0.76rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.cv-company { font-size: 0.82rem; color: var(--accent); margin-bottom: 0.3rem; }
+.cv-doc.t-modern .cv-company { color: var(--accent2); }
+.cv-bullets { padding-left: 1rem; }
+.cv-bullets li { font-size: 0.82rem; color: var(--ink2); line-height: 1.5; margin-bottom: 0.18rem; }
+.cv-edu-degree { font-size: 0.88rem; font-weight: 600; }
+.cv-edu-inst { font-size: 0.82rem; color: var(--accent); }
+.cv-edu-detail { font-size: 0.78rem; color: var(--muted); }
+.cv-skill-wrap { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.cv-skill { background: var(--surface2); border: 1px solid var(--border); color: var(--ink2); padding: 0.22rem 0.7rem; border-radius: 100px; font-size: 0.76rem; }
+.cv-doc.t-modern .cv-skill { background: var(--accent-light); border-color: rgba(196,98,45,0.2); color: var(--accent); }
+.cv-doc.t-executive .cv-skill { background: var(--accent-light); }
+
+/* COVER LETTER */
+.cl-doc { padding: 2.5rem; font-family: 'Outfit', sans-serif; color: var(--ink); line-height: 1.7; min-height: 400px; }
+.cl-date { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.25rem; }
+.cl-salutation { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.75rem; }
+.cl-body p { font-size: 0.88rem; color: var(--ink2); margin-bottom: 0.75rem; line-height: 1.7; }
+.cl-signoff { margin-top: 1.25rem; font-size: 0.88rem; }
+.cl-signame { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-top: 0.25rem; }
+
+/* TIPS PAGE */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.25rem; border-left: 3px solid var(--accent); }
+.tip-card.blue { border-left-color: var(--accent2); }
+.tip-card.green { border-left-color: var(--success); }
+.tip-card.gold { border-left-color: var(--gold); }
+.tip-card-title { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.4rem; }
+.tip-card-body { font-size: 0.8rem; color: var(--ink2); line-height: 1.55; }
+
+.checklist { display: flex; flex-direction: column; gap: 0.45rem; }
+.check-item { display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.8rem; color: var(--ink2); line-height: 1.45; cursor: pointer; }
+.check-item input[type=checkbox] { margin-top: 2px; accent-color: var(--success); flex-shrink: 0; }
+.check-item.checked span { text-decoration: line-through; color: var(--muted); }
+.progress-label { display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--muted); margin-bottom: 0.4rem; margin-top: 1rem; }
+.prog-bg { height: 6px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 100px; transition: width 0.5s ease; }
+
+.dos-donts { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; font-size: 0.8rem; }
+.col-head { padding: 0.6rem 1rem; font-weight: 600; font-size: 0.76rem; }
+.dos-head { background: var(--success-light); color: var(--success); border-bottom: 1px solid rgba(45,122,79,0.15); }
+.donts-head { background: var(--accent-light); color: var(--accent); border-left: 1px solid var(--border); border-bottom: 1px solid rgba(196,98,45,0.15); }
+.col-list { list-style: none; padding: 0.6rem 1rem; }
+.donts-list { border-left: 1px solid var(--border); }
+.col-list li { padding: 0.25rem 0; color: var(--ink2); border-bottom: 1px solid var(--border); display: flex; gap: 0.4rem; line-height: 1.4; }
+.col-list li:last-child { border-bottom: none; }
+
+.alert { padding: 0.7rem 0.9rem; border-radius: 8px; font-size: 0.8rem; margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: flex-start; line-height: 1.5; }
+.alert-info { background: var(--accent2-light); border: 1px solid rgba(45,92,138,0.2); color: var(--accent2); }
+.alert-gold { background: var(--gold-light); border: 1px solid rgba(184,149,42,0.25); color: #7a6010; }
+
+.collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 0.3rem 0; user-select: none; }
+.coll-toggle { width: 20px; height: 20px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--muted); }
+.coll-body { overflow: hidden; transition: max-height 0.3s ease; }
+.coll-body.closed { max-height: 0 !important; }
+
+.step-flow { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.step-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+.step-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.25rem; }
+.step-body { font-size: 0.8rem; color: var(--ink2); line-height: 1.55; }
+
+.verbs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+.verb-group-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+.verb-list { font-size: 0.8rem; color: var(--ink2); line-height: 1.85; }
+
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--ink); color: #fff; padding: 0.7rem 1.2rem; border-radius: 8px; font-size: 0.82rem; transform: translateY(80px); opacity: 0; transition: all 0.3s ease; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 100px; }
+
+@media print {
+  header, .left-panel, .preview-toolbar, .tips-grid, footer { display: none !important; }
+  .app-layout { display: block; }
+  .right-panel { padding: 0; }
+  .preview-wrap { border: none; box-shadow: none; }
+  .cv-doc, .cl-doc { padding: 1.5cm; }
+  .page { display: block !important; }
+}
+
+@media (max-width: 900px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .left-panel { position: static; max-height: none; }
+  .right-panel { padding: 1.25rem; }
+  .template-grid { grid-template-columns: repeat(3,1fr); }
+  .dos-donts { grid-template-columns: 1fr; }
+  .donts-head, .donts-list { border-left: none; border-top: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Craft<span>CV</span></div>
+  <div class="header-nav">
+    <button class="tab-btn active" onclick="switchTab('cv')">CV Builder</button>
+    <button class="tab-btn" onclick="switchTab('cover')">Cover Letter</button>
+    <button class="tab-btn" onclick="switchTab('tips')">Tips & Advice</button>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <div class="panel-section">
+      <div class="section-label">Personal Info</div>
+      <div class="field-row">
+        <div class="field-group"><label>First Name</label><input id="firstName" placeholder="Jane" oninput="liveUpdate()"></div>
+        <div class="field-group"><label>Last Name</label><input id="lastName" placeholder="Smith" oninput="liveUpdate()"></div>
+      </div>
+      <div class="field-group"><label>Job Title / Headline</label><input id="jobTitle" placeholder="Senior Product Designer" oninput="liveUpdate()"></div>
+      <div class="field-row">
+        <div class="field-group"><label>Email</label><input id="email" type="email" placeholder="jane@email.com" oninput="liveUpdate()"></div>
+        <div class="field-group"><label>Phone</label><input id="phone" placeholder="+44 7700 900000" oninput="liveUpdate()"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Location</label><input id="location" placeholder="London, UK" oninput="liveUpdate()"></div>
+        <div class="field-group"><label>LinkedIn / Website</label><input id="linkedin" placeholder="linkedin.com/in/jane" oninput="liveUpdate()"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label">Professional Summary</div>
+      <div class="field-group">
+        <textarea id="summary" rows="4" placeholder="2–3 sentences. Lead with your years of experience, core specialism, and biggest value-add. Tailor this for every application." oninput="liveUpdate()"></textarea>
+      </div>
+      <p style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem">💡 Keep to 3 sentences max. No first person — avoid "I am..."</p>
+    </div>
+
+    <div class="panel-section">
+      <div class="collapsible-header" onclick="toggleColl('exp-body','exp-tog')">
+        <div class="section-label" style="margin-bottom:0">Work Experience</div>
+        <div class="coll-toggle" id="exp-tog">▾</div>
+      </div>
+      <div class="coll-body" id="exp-body" style="max-height:9999px">
+        <div style="margin-top:0.85rem" id="exp-list"></div>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="addExp()" style="margin-top:0.4rem">+ Add Role</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="collapsible-header" onclick="toggleColl('edu-body','edu-tog')">
+        <div class="section-label" style="margin-bottom:0">Education</div>
+        <div class="coll-toggle" id="edu-tog">▾</div>
+      </div>
+      <div class="coll-body" id="edu-body" style="max-height:9999px">
+        <div style="margin-top:0.85rem" id="edu-list"></div>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="addEdu()" style="margin-top:0.4rem">+ Add Education</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label">Skills & Languages</div>
+      <div class="field-group">
+        <label>Skills (press Enter or comma to add)</label>
+        <div class="tags-input-area" id="skills-wrap" onclick="document.getElementById('skills-input').focus()">
+          <input class="tags-input" id="skills-input" placeholder="e.g. Project Management" onkeydown="addTag(event,'skills')">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Languages</label>
+        <div class="tags-input-area" id="langs-wrap" onclick="document.getElementById('langs-input').focus()">
+          <input class="tags-input" id="langs-input" placeholder="e.g. English (Native)" onkeydown="addTag(event,'langs')">
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label">Cover Letter Details</div>
+      <div class="field-group"><label>Hiring Manager's Name</label><input id="cl-manager" placeholder="Ms. Johnson (or leave blank for 'Hiring Team')" oninput="liveUpdateCL()"></div>
+      <div class="field-group"><label>Company Name</label><input id="cl-company" placeholder="Acme Corporation" oninput="liveUpdateCL()"></div>
+      <div class="field-group"><label>Role Applying For</label><input id="cl-role" placeholder="Senior Product Manager" oninput="liveUpdateCL()"></div>
+      <div class="field-group"><label>Opening Paragraph</label><textarea id="cl-open" rows="3" placeholder="Express your enthusiasm and why this specific role and company excites you. Mention something specific about the company..." oninput="liveUpdateCL()"></textarea></div>
+      <div class="field-group"><label>Your Key Strengths / Achievements</label><textarea id="cl-body" rows="4" placeholder="Describe 2–3 relevant achievements that make you the ideal candidate. Use numbers where possible..." oninput="liveUpdateCL()"></textarea></div>
+      <div class="field-group"><label>Closing Statement</label><textarea id="cl-close" rows="2" placeholder="Express eagerness for an interview and thank them for their time..." oninput="liveUpdateCL()"></textarea></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- CV PAGE -->
+    <div id="page-cv" class="page active">
+      <div class="section-heading">CV Preview</div>
+      <p class="section-sub">Your CV builds live as you type. Choose a template, then copy or print to save as PDF.</p>
+
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:0.78rem;font-weight:600;color:var(--ink2);margin-bottom:0.5rem">Template Style</div>
+        <div class="template-grid">
+          <div class="template-card selected" onclick="selectTpl(this,'t-classic')">
+            <div class="template-thumb">📋</div>
+            <div class="template-name">Classic</div>
+            <div class="template-desc">Clean & traditional</div>
+          </div>
+          <div class="template-card" onclick="selectTpl(this,'t-modern')">
+            <div class="template-thumb">⚡</div>
+            <div class="template-name">Modern</div>
+            <div class="template-desc">Bold dark header</div>
+          </div>
+          <div class="template-card" onclick="selectTpl(this,'t-executive')">
+            <div class="template-thumb">👔</div>
+            <div class="template-name">Executive</div>
+            <div class="template-desc">Senior & refined</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-toolbar">
+          <span class="preview-toolbar-title">Live CV Preview</span>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-ghost btn-sm" onclick="copyText('cv-preview')">Copy Text</button>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Print / PDF</button>
+          </div>
+        </div>
+        <div class="cv-doc t-classic" id="cv-preview">
+          <div style="text-align:center;padding:3rem;color:var(--muted);font-size:0.85rem">Start filling in your details on the left — your CV will appear here instantly.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COVER LETTER PAGE -->
+    <div id="page-cover" class="page">
+      <div class="section-heading">Cover Letter Preview</div>
+      <p class="section-sub">Fill in the Cover Letter Details on the left. Your letter builds live — copy or print when ready.</p>
+
+      <div class="alert alert-gold">
+        <span>✍️</span>
+        <span><strong>Golden rule:</strong> Every cover letter must be unique. Reference the company by name, mention something specific about the role, and show genuine enthusiasm. Generic letters get ignored.</span>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-toolbar">
+          <span class="preview-toolbar-title">Live Cover Letter Preview</span>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-ghost btn-sm" onclick="copyText('cl-preview')">Copy Text</button>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Print / PDF</button>
+          </div>
+        </div>
+        <div class="cl-doc" id="cl-preview">
+          <div style="text-align:center;padding:3rem;color:var(--muted);font-size:0.85rem">Fill in the Cover Letter Details on the left panel and your letter will appear here.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIPS PAGE -->
+    <div id="page-tips" class="page">
+      <div class="section-heading">Tips & Advice</div>
+      <p class="section-sub">Everything you need to know to write a CV and cover letter that actually gets interviews.</p>
+
+      <!-- CHECKLIST -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.2rem">CV Checklist</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem">Tick each off as you complete it. A strong CV hits every single one of these.</p>
+        <div class="checklist">
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Name and contact details are at the very top and easy to find</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Professional summary is 2–3 sentences and tailored to the role</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Work experience is in reverse chronological order (most recent first)</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Each bullet point starts with a strong action verb (Led, Built, Delivered, Grew...)</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Achievements are quantified where possible (e.g. "grew revenue by 35%")</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>No personal pronouns — avoid "I", "my", "we" throughout</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>CV is 1–2 pages max (1 page for under 5 years experience)</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Skills section includes keywords directly from the job description</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>No spelling or grammar mistakes — read it aloud or backwards to catch errors</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Consistent formatting throughout (fonts, spacing, bullet styles)</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>Employment gaps are briefly and positively addressed</span></label>
+          <label class="check-item"><input type="checkbox" onchange="tickCheck(this)"><span>LinkedIn URL included and profile matches what's on your CV</span></label>
+        </div>
+        <div class="progress-label"><span>Checklist Progress</span><span id="cl-pct">0%</span></div>
+        <div class="prog-bg"><div class="prog-fill" id="cl-bar" style="width:0%"></div></div>
+      </div>
+
+      <!-- DO'S & DON'TS -->
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.75rem">CV Do's & Don'ts</div>
+      <div class="dos-donts">
+        <div>
+          <div class="col-head dos-head">✓ Do</div>
+          <ul class="col-list">
+            <li>✓ Tailor your CV for every single application</li>
+            <li>✓ Use bullet points, not paragraphs</li>
+            <li>✓ Quantify achievements with numbers and %</li>
+            <li>✓ Mirror keywords from the job description</li>
+            <li>✓ Keep formatting clean and consistent</li>
+            <li>✓ Always save and send as a PDF file</li>
+            <li>✓ Include a LinkedIn profile link</li>
+            <li>✓ Lead with your strongest, most relevant experience</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-head donts-head">✕ Don't</div>
+          <ul class="col-list donts-list">
+            <li>✕ Include a photo or date of birth</li>
+            <li>✕ Add "References available on request"</li>
+            <li>✕ Use the exact same CV for every job</li>
+            <li>✕ Write in first person ("I am a...")</li>
+            <li>✕ Use a generic or unprofessional email address</li>
+            <li>✕ Include salary expectations or reasons for leaving</li>
+            <li>✕ Use excessive jargon or vague buzzwords</li>
+            <li>✕ List every job you've ever had — be selective</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- BULLET POINT EXAMPLES -->
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.75rem">Writing Strong Bullet Points</div>
+      <div class="alert alert-info" style="margin-bottom:1rem">
+        <span>📌</span>
+        <span>Use the <strong>CAR formula</strong> — <strong>C</strong>hallenge → <strong>A</strong>ction → <strong>R</strong>esult. Describe the situation, what you did, and the measurable outcome.</span>
+      </div>
+
+      <div class="tips-grid" style="margin-bottom:1.5rem">
+        <div class="tip-card" style="border-left-color:var(--accent)">
+          <div class="tip-card-title" style="color:var(--accent)">🔴 Weak</div>
+          <div class="tip-card-body">"Responsible for managing social media accounts and posting content regularly."</div>
+        </div>
+        <div class="tip-card green">
+          <div class="tip-card-title" style="color:var(--success)">🟢 Strong</div>
+          <div class="tip-card-body">"Grew Instagram following from 2k to 18k in 6 months by launching a weekly video series, increasing engagement by 140%."</div>
+        </div>
+        <div class="tip-card" style="border-left-color:var(--accent)">
+          <div class="tip-card-title" style="color:var(--accent)">🔴 Weak</div>
+          <div class="tip-card-body">"Helped with improving the sales process and worked with the team on projects."</div>
+        </div>
+        <div class="tip-card green">
+          <div class="tip-card-title" style="color:var(--success)">🟢 Strong</div>
+          <div class="tip-card-body">"Redesigned the inbound sales workflow, cutting average close time from 21 to 9 days and lifting quarterly revenue by £120k."</div>
+        </div>
+      </div>
+
+      <!-- ACTION VERBS -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.5rem">Power Action Verbs</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem">Start every bullet point with one of these. Never use "Responsible for" or "Helped with".</p>
+        <div class="verbs-grid">
+          <div><div class="verb-group-title" style="color:var(--accent)">Leadership</div><div class="verb-list">Led · Directed · Spearheaded · Championed · Oversaw · Mentored · Recruited · Cultivated</div></div>
+          <div><div class="verb-group-title" style="color:var(--accent2)">Growth</div><div class="verb-list">Grew · Expanded · Scaled · Accelerated · Boosted · Doubled · Maximised · Increased</div></div>
+          <div><div class="verb-group-title" style="color:var(--success)">Delivery</div><div class="verb-list">Delivered · Launched · Executed · Shipped · Deployed · Achieved · Completed · Produced</div></div>
+          <div><div class="verb-group-title" style="color:var(--gold)">Innovation</div><div class="verb-list">Designed · Built · Created · Engineered · Pioneered · Transformed · Modernised · Developed</div></div>
+          <div><div class="verb-group-title" style="color:var(--muted)">Analysis</div><div class="verb-list">Analysed · Evaluated · Identified · Researched · Assessed · Mapped · Benchmarked · Audited</div></div>
+          <div><div class="verb-group-title" style="color:var(--ink2)">Collaboration</div><div class="verb-list">Partnered · Coordinated · Facilitated · Negotiated · Aligned · Consulted · Presented · Advised</div></div>
+        </div>
+      </div>
+
+      <!-- COVER LETTER FORMULA -->
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.75rem">The Cover Letter Formula</div>
+      <div class="step-flow">
+        <div class="step-item">
+          <div class="step-num" style="background:var(--accent)">1</div>
+          <div><div class="step-title">The Hook — Opening Paragraph</div><div class="step-body">Open with genuine enthusiasm. Name the exact role, mention something specific about the company that excites you (their product, mission, a recent launch), and state your single most relevant credential. Never open with "I am writing to apply for..."</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num" style="background:var(--accent2)">2</div>
+          <div><div class="step-title">The Proof — Middle Paragraph(s)</div><div class="step-body">Pick 2–3 achievements from your CV that directly match what the job description asks for. Be specific and use numbers. Connect your past results to what you'd deliver in this new role. Show you've read the job spec carefully.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num" style="background:var(--success)">3</div>
+          <div><div class="step-title">The Close — Final Paragraph</div><div class="step-body">Restate your enthusiasm, thank them for their time, and make a confident call to action: "I would welcome the chance to discuss this further and am happy to arrange a call at your convenience." Sign off warmly but professionally.</div></div>
+        </div>
+      </div>
+
+      <!-- GENERAL TIPS -->
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.75rem;margin-top:0.5rem">More Expert Tips</div>
+      <div class="tips-grid">
+        <div class="tip-card blue">
+          <div class="tip-card-title">🔑 Beat the ATS</div>
+          <div class="tip-card-body">Many companies use Applicant Tracking Systems to filter CVs before a human reads them. Mirror exact phrases from the job description. If they say "stakeholder management", use those words — not "managing relationships".</div>
+        </div>
+        <div class="tip-card gold">
+          <div class="tip-card-title">📏 Length rules</div>
+          <div class="tip-card-body">Under 5 years experience: 1 page. 5–15 years: 1–2 pages. Senior/executive: up to 3 pages. Recruiters scan CVs in about 7 seconds initially — make every line earn its place.</div>
+        </div>
+        <div class="tip-card green">
+          <div class="tip-card-title">📂 File format & naming</div>
+          <div class="tip-card-body">Always send as PDF unless asked otherwise. PDFs preserve your formatting on every device. Name your file "FirstName-LastName-CV.pdf" — never "CV-final-v3-FINAL.pdf".</div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-card-title">🎯 Tailor every time</div>
+          <div class="tip-card-body">A tailored CV is significantly more likely to get an interview than a generic one. Keep a "master CV" with everything, then create a trimmed and reordered version for each specific application.</div>
+        </div>
+        <div class="tip-card blue">
+          <div class="tip-card-title">🕳️ Employment gaps</div>
+          <div class="tip-card-body">Don't try to hide gaps — recruiters will notice. Address them briefly and positively. Freelance work, studying, caregiving, or personal development are all legitimate. Be ready to elaborate at interview.</div>
+        </div>
+        <div class="tip-card gold">
+          <div class="tip-card-title">👥 Get a second opinion</div>
+          <div class="tip-card-body">Always have someone else proofread your CV and cover letter. You stop seeing your own mistakes after reading the same text too many times. A fresh reader will also spot anything that's unclear or undersells you.</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<footer style="text-align:center;padding:1.1rem;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;border-top:1px solid var(--border);background:var(--surface);">
+  Made by <span style="color:var(--accent);font-weight:600;">Aaron Sermon</span>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const S = { tpl: 't-classic', skills: [], langs: [], exps: [], edus: [] };
+
+function switchTab(t) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  ['cv','cover','tips'].forEach((n,i) => { if(n===t){ document.querySelectorAll('.tab-btn')[i].classList.add('active'); document.getElementById('page-'+n).classList.add('active'); } });
+}
+
+function selectTpl(el, name) {
+  document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  S.tpl = name;
+  liveUpdate();
+}
+
+function g(id) { return (document.getElementById(id)?.value || '').trim(); }
+function h(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// TAGS
+function addTag(e, type) {
+  if (e.key !== 'Enter' && e.key !== ',') return;
+  e.preventDefault();
+  const input = document.getElementById(type+'-input');
+  const val = input.value.replace(',','').trim();
+  const arr = type === 'skills' ? S.skills : S.langs;
+  if (val && !arr.includes(val)) { arr.push(val); renderTags(type); liveUpdate(); }
+  input.value = '';
+}
+function renderTags(type) {
+  const arr = type==='skills' ? S.skills : S.langs;
+  const wrap = document.getElementById(type+'-wrap');
+  const inp = document.getElementById(type+'-input');
+  wrap.innerHTML = '';
+  arr.forEach((t,i) => {
+    const d = document.createElement('div');
+    d.className = 'tag';
+    d.innerHTML = h(t)+'<button onclick="delTag(\''+type+'\','+i+')">×</button>';
+    wrap.appendChild(d);
+  });
+  wrap.appendChild(inp);
+}
+function delTag(type, i) {
+  (type==='skills' ? S.skills : S.langs).splice(i,1);
+  renderTags(type); liveUpdate();
+}
+
+// EXPERIENCE
+function addExp() {
+  S.exps.push({ id: Date.now(), title:'', company:'', dates:'', bullets:'' });
+  renderExps();
+}
+function delExp(id) { S.exps = S.exps.filter(e=>e.id!==id); renderExps(); liveUpdate(); }
+function updExp(id, f, v) {
+  const e = S.exps.find(e=>e.id===id);
+  if(e){ e[f]=v; liveUpdate(); }
+  if(f==='title'||f==='company'||f==='dates') refreshExpHeader(id);
+}
+function refreshExpHeader(id) {
+  const e = S.exps.find(x=>x.id===id); if(!e) return;
+  const item = document.querySelector('.exp-item .remove-btn[onclick="delExp('+id+')"]')?.closest('.exp-item');
+  if(item){ item.querySelector('.exp-item-title').textContent=e.title||'New Role'; item.querySelector('.exp-item-sub').textContent=(e.company||'Company')+(e.dates?' · '+e.dates:''); }
+}
+function renderExps() {
+  const list = document.getElementById('exp-list');
+  if(!S.exps.length){ list.innerHTML='<p style="font-size:0.78rem;color:var(--muted);text-align:center;padding:0.5rem 0">No roles added yet</p>'; return; }
+  list.innerHTML = S.exps.map(e=>`
+    <div class="exp-item">
+      <div class="exp-item-header">
+        <div><div class="exp-item-title">${h(e.title)||'New Role'}</div><div class="exp-item-sub">${h(e.company)||'Company'}${e.dates?' · '+h(e.dates):''}</div></div>
+        <button class="remove-btn" onclick="delExp(${e.id})">✕</button>
+      </div>
+      <input class="iinput" placeholder="Job Title" value="${h(e.title)}" oninput="updExp(${e.id},'title',this.value)">
+      <input class="iinput" placeholder="Company Name" value="${h(e.company)}" oninput="updExp(${e.id},'company',this.value)">
+      <input class="iinput" placeholder="Dates e.g. Jan 2022 – Present" value="${h(e.dates)}" oninput="updExp(${e.id},'dates',this.value)">
+      <textarea class="iinput" rows="3" placeholder="Key achievements — one per line. Start each with an action verb." oninput="updExp(${e.id},'bullets',this.value)">${h(e.bullets)}</textarea>
+    </div>`).join('');
+}
+
+// EDUCATION
+function addEdu() {
+  S.edus.push({ id: Date.now(), degree:'', inst:'', dates:'', detail:'' });
+  renderEdus();
+}
+function delEdu(id) { S.edus = S.edus.filter(e=>e.id!==id); renderEdus(); liveUpdate(); }
+function updEdu(id, f, v) { const e=S.edus.find(e=>e.id===id); if(e){ e[f]=v; liveUpdate(); } }
+function renderEdus() {
+  const list = document.getElementById('edu-list');
+  if(!S.edus.length){ list.innerHTML='<p style="font-size:0.78rem;color:var(--muted);text-align:center;padding:0.5rem 0">No education added yet</p>'; return; }
+  list.innerHTML = S.edus.map(e=>`
+    <div class="exp-item">
+      <div class="exp-item-header">
+        <div><div class="exp-item-title">${h(e.degree)||'Degree'}</div><div class="exp-item-sub">${h(e.inst)||'Institution'}</div></div>
+        <button class="remove-btn" onclick="delEdu(${e.id})">✕</button>
+      </div>
+      <input class="iinput" placeholder="Degree / Qualification" value="${h(e.degree)}" oninput="updEdu(${e.id},'degree',this.value)">
+      <input class="iinput" placeholder="Institution Name" value="${h(e.inst)}" oninput="updEdu(${e.id},'inst',this.value)">
+      <input class="iinput" placeholder="Dates e.g. 2018 – 2021" value="${h(e.dates)}" oninput="updEdu(${e.id},'dates',this.value)">
+      <input class="iinput" placeholder="Grade, awards, relevant modules (optional)" value="${h(e.detail)}" oninput="updEdu(${e.id},'detail',this.value)">
+    </div>`).join('');
+}
+
+// COLLAPSIBLE
+function toggleColl(bodyId, togId) {
+  const body = document.getElementById(bodyId);
+  const open = !body.classList.contains('closed');
+  body.classList.toggle('closed', open);
+  document.getElementById(togId).textContent = open ? '▸' : '▾';
+}
+
+// LIVE CV PREVIEW
+function liveUpdate() {
+  const name = (g('firstName')+' '+g('lastName')).trim();
+  const title = g('jobTitle'), email = g('email'), phone = g('phone');
+  const loc = g('location'), li = g('linkedin'), summary = g('summary');
+
+  if(!name && !title && !summary && !S.exps.length && !S.edus.length && !S.skills.length) {
+    document.getElementById('cv-preview').innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted);font-size:0.85rem">Start filling in your details on the left — your CV will appear here instantly.</div>';
+    return;
+  }
+
+  const contacts = [email, phone, loc, li].filter(Boolean);
+  let html = `<div class="cv-header">
+    <div class="cv-name">${h(name)||'Your Name'}</div>
+    ${title?`<div class="cv-headline">${h(title)}</div>`:''}
+    ${contacts.length?`<div class="cv-contact">${contacts.map(c=>`<span class="cv-contact-item">${h(c)}</span>`).join('')}</div>`:''}
+  </div>`;
+
+  if(summary) html+=`<div class="cv-section"><div class="cv-section-title">Profile</div><div class="cv-summary">${h(summary)}</div></div>`;
+
+  if(S.exps.length) {
+    html+=`<div class="cv-section"><div class="cv-section-title">Work Experience</div>`;
+    S.exps.forEach(e=>{
+      const bullets = (e.bullets||'').split('\n').filter(b=>b.trim());
+      html+=`<div class="cv-exp-item">
+        <div class="cv-row"><div class="cv-exp-title">${h(e.title)||'Role'}</div><div class="cv-dates">${h(e.dates)}</div></div>
+        <div class="cv-company">${h(e.company)}</div>
+        ${bullets.length?`<ul class="cv-bullets">${bullets.map(b=>`<li>${h(b.replace(/^[-•*]\s*/,''))}</li>`).join('')}</ul>`:''}
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(S.edus.length) {
+    html+=`<div class="cv-section"><div class="cv-section-title">Education</div>`;
+    S.edus.forEach(e=>{
+      html+=`<div class="cv-exp-item">
+        <div class="cv-row"><div class="cv-edu-degree">${h(e.degree)||'Qualification'}</div><div class="cv-dates">${h(e.dates)}</div></div>
+        <div class="cv-edu-inst">${h(e.inst)}</div>
+        ${e.detail?`<div class="cv-edu-detail">${h(e.detail)}</div>`:''}
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  const allSkills = [...S.skills, ...S.langs];
+  if(allSkills.length) {
+    html+=`<div class="cv-section"><div class="cv-section-title">Skills${S.langs.length?' & Languages':''}</div>
+    <div class="cv-skill-wrap">${allSkills.map(s=>`<span class="cv-skill">${h(s)}</span>`).join('')}</div></div>`;
+  }
+
+  const prev = document.getElementById('cv-preview');
+  prev.className = `cv-doc ${S.tpl}`;
+  prev.innerHTML = html;
+}
+
+// LIVE COVER LETTER PREVIEW
+function liveUpdateCL() {
+  const name = (g('firstName')+' '+g('lastName')).trim();
+  const manager = g('cl-manager'), company = g('cl-company'), role = g('cl-role');
+  const open = g('cl-open'), body = g('cl-body'), close = g('cl-close');
+
+  if(!name && !company && !open && !body) {
+    document.getElementById('cl-preview').innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted);font-size:0.85rem">Fill in the Cover Letter Details on the left panel and your letter will appear here.</div>';
+    return;
+  }
+
+  const today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const sal = manager ? `Dear ${h(manager)},` : 'Dear Hiring Team,';
+
+  let html = `<div class="cl-date">${today}</div>
+  <div class="cl-salutation">${sal}</div>
+  <div class="cl-body">`;
+
+  if(role||company) html+=`<p><strong>Re: Application for ${h(role)||'the advertised position'}${company?' at '+h(company):''}</strong></p>`;
+  if(open) html+=`<p>${h(open).replace(/\n/g,'</p><p>')}</p>`;
+  if(body) html+=`<p>${h(body).replace(/\n/g,'</p><p>')}</p>`;
+  if(close) html+=`<p>${h(close).replace(/\n/g,'</p><p>')}</p>`;
+
+  html+=`</div><div class="cl-signoff">Yours sincerely,<br>
+  <div class="cl-signame">${h(name)||'Your Name'}</div>
+  ${g('email')?`<div style="font-size:0.8rem;color:var(--muted);margin-top:0.2rem">${h(g('email'))}${g('phone')?' · '+h(g('phone')):''}</div>`:''}
+  </div>`;
+
+  document.getElementById('cl-preview').innerHTML = html;
+}
+
+// COPY
+function copyText(id) {
+  navigator.clipboard.writeText(document.getElementById(id).innerText)
+    .then(()=>toast('Copied to clipboard ✓'));
+}
+
+// CHECKLIST
+function tickCheck(cb) {
+  cb.closest('.check-item').classList.toggle('checked', cb.checked);
+  const all = document.querySelectorAll('.checklist input[type=checkbox]');
+  const done = document.querySelectorAll('.checklist input[type=checkbox]:checked').length;
+  const pct = Math.round((done/all.length)*100);
+  document.getElementById('cl-pct').textContent = pct+'%';
+  document.getElementById('cl-bar').style.width = pct+'%';
+}
+
+// TOAST
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.className='toast', 2800);
+}
+
+renderExps(); renderEdus();
+</script>
+</body>
+</html>
